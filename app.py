@@ -16,6 +16,9 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-fallback-key-change-in-production')
 
+# Detect Vercel environment
+IS_VERCEL = bool(os.environ.get('VERCEL'))
+
 # Database configuration — use PostgreSQL on Vercel, SQLite locally
 database_url = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL') or os.environ.get('STORAGE_URL')
 if database_url:
@@ -23,14 +26,14 @@ if database_url:
     if database_url.startswith('postgres://'):
         database_url = database_url.replace('postgres://', 'postgresql://', 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+elif IS_VERCEL:
+    # On Vercel, the root filesystem is read-only; use /tmp for SQLite if external DB is not set yet
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/exam_papers.db'
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///exam_papers.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-
-# Detect Vercel environment
-IS_VERCEL = bool(os.environ.get('VERCEL'))
 
 # Local uploads folder (only used in local dev)
 if not IS_VERCEL:
