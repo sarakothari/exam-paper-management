@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-fallback-key-change-in-production')
 
 # Database configuration — use PostgreSQL on Vercel, SQLite locally
-database_url = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
+database_url = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL') or os.environ.get('STORAGE_URL')
 if database_url:
     # Handle legacy postgres:// connection strings (Heroku/Vercel Postgres)
     if database_url.startswith('postgres://'):
