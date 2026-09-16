@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Upload Question Paper</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Paper Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <p class="form-label">Subject: {{ current_user.subject }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Question Paper File</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".doc,.docx,.pdf" required>
+                        <div class="form-text">Upload a Word (.doc, .docx) or PDF file. Maximum file size: 16MB</div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Upload Paper</button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control[type="file"] {
+        padding: 0.375rem 0.75rem;
+        height: auto;
+    }
+    .form-control[type="file"]::-webkit-file-upload-button {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 0.375rem 0.75rem;
+        margin-right: 1rem;
+    }
+    .form-control[type="file"]::-webkit-file-upload-button:hover {
+        background-color: #e9ecef;
+    }
+</style>
+{% endblock %} 

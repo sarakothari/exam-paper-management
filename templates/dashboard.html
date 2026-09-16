@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Dashboard</h2>
+    
+    {% if current_user.role == 'teacher' %}
+        <div class="mb-3">
+            <a href="{{ url_for('upload_paper') }}" class="btn btn-primary">Upload New Paper</a>
+        </div>
+    {% endif %}
+    
+    {% if current_user.role in ['admin', 'exam_cell'] %}
+        <div class="mb-3">
+            <a href="{{ url_for('manage_decryption_requests') }}" class="btn btn-warning">Manage Decryption Requests</a>
+        </div>
+    {% endif %}
+    
+    {% if current_user.role == 'exam_cell' %}
+        <!-- Subject-wise sections for exam cell -->
+        <ul class="nav nav-tabs mb-4" id="subjectTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="maths-tab" data-bs-toggle="tab" data-bs-target="#maths" type="button" role="tab">Mathematics</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="dbms-tab" data-bs-toggle="tab" data-bs-target="#dbms" type="button" role="tab">DBMS</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="os-tab" data-bs-toggle="tab" data-bs-target="#os" type="button" role="tab">Operating Systems</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="subjectTabContent">
+            {% for subject in ['maths', 'dbms', 'os'] %}
+            <div class="tab-pane fade {% if subject == 'maths' %}show active{% endif %}" id="{{ subject }}" role="tabpanel">
+                <div class="mb-3">
+                    <h4>{{ subject|upper }} Papers</h4>
+                    <form action="{{ url_for('select_random_paper') }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="subject" value="{{ subject }}">
+                        <button type="submit" class="btn btn-success">Select Random {{ subject|upper }} Paper</button>
+                    </form>
+                </div>
+
+                {% set subject_papers = papers|selectattr("subject", "equalto", subject)|list %}
+                {% if subject_papers %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Encryption Status</th>
+                                <th>Upload Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for paper in subject_papers %}
+                            <tr>
+                                <td>{{ paper.title }}</td>
+                                <td>
+                                    <span class="badge {% if paper.status == 'selected' %}bg-success{% elif paper.status == 'approved' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                        {{ paper.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if paper.is_encrypted %}
+                                        <span class="badge bg-success">Encrypted</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Not Encrypted</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ paper.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>
+                                    <a href="{{ url_for('download_paper', paper_id=paper.id) }}" class="btn btn-sm btn-primary">Download</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Decryption Requests for this subject -->
+                <div class="mt-4">
+                    <h5>Pending Decryption Requests ({{ subject|upper }})</h5>
+                    {% set subject_requests = decryption_requests|selectattr("paper.subject", "equalto", subject)|list %}
+                    {% if subject_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Paper Title</th>
+                                    <th>Requester</th>
+                                    <th>Request Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in subject_requests %}
+                                <tr>
+                                    <td>{{ request.paper.title }}</td>
+                                    <td>{{ request.requester.full_name }}</td>
+                                    <td>{{ request.request_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>
+                                        <form action="{{ url_for('approve_decryption', request_id=request.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                        <form action="{{ url_for('reject_decryption', request_id=request.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>No pending decryption requests for {{ subject|upper }}</p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p>No papers available for {{ subject|upper }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Regular dashboard for other roles -->
+        {% if papers %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Encryption Status</th>
+                        <th>Upload Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for paper in papers %}
+                    <tr>
+                        <td>{{ paper.title }}</td>
+                        <td>{{ paper.subject|upper }}</td>
+                        <td>{{ paper.status }}</td>
+                        <td>
+                            {% if paper.is_encrypted %}
+                                <span class="badge bg-success">Encrypted</span>
+                            {% else %}
+                                <span class="badge bg-danger">Not Encrypted</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ paper.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            {% if current_user.role == 'moderator' and paper.status == 'uploaded' %}
+                                <a href="{{ url_for('review_paper', paper_id=paper.id) }}" class="btn btn-sm btn-warning">Review</a>
+                            {% else %}
+                                <a href="{{ url_for('request_decryption', paper_id=paper.id) }}" class="btn btn-sm btn-warning">Request Decryption</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No papers available.</p>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %} 

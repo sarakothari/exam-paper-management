@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Request File Decryption</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ paper.title }}</h5>
+            <p class="card-text">
+                Status: {{ paper.status }}<br>
+                Upload Date: {{ paper.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+            </p>
+            
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="reason" class="form-label">Reason for Decryption</label>
+                    <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Request</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

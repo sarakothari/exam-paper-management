@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card welcome-card">
+            <h3>Welcome to Exam Paper Management System</h3>
+            <h4>System Overview</h4>
+            <p>This system manages the secure handling of examination papers with the following workflow:</p>
+            <ol>
+                <li>Teachers upload encrypted question papers</li>
+                <li>Moderators review and approve papers</li>
+                <li>One paper is randomly selected for the exam</li>
+                <li>Exam cell can decrypt and print the paper on exam day</li>
+            </ol>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('login') }}" class="btn btn-light">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-light">Register</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

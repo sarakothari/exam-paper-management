@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Review Question Paper</h3>
+            </div>
+            <div class="card-body">
+                <h4>{{ paper.title }}</h4>
+                <div class="mb-3">
+                    <label class="form-label">Paper File:</label>
+                    <div class="border p-3 bg-light">
+                        <p>File: {{ paper.file_path.split('/')[-1] }}</p>
+                        <a href="{{ url_for('download_paper', paper_id=paper.id) }}" class="btn btn-sm btn-primary">Download Paper</a>
+                    </div>
+                </div>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Review Comments</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                        <div class="form-text">Add any comments about your review (optional)</div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="action" value="approve" class="btn btn-success">Approve Paper</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger">Reject Paper</button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

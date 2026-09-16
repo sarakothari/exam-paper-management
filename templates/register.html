@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Register</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-select" id="role" name="role" required onchange="toggleRoleFields()">
+                                <option value="teacher">Teacher</option>
+                                <option value="moderator">Moderator</option>
+                                {% if not exam_cell_exists %}
+                                    <option value="exam_cell">Exam Cell</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <!-- Subject selection for teachers and moderators -->
+                        <div class="mb-3" id="subjectField">
+                            <label for="subject" class="form-label">Subject</label>
+                            <select class="form-select" id="subject" name="subject" required>
+                                <option value="">Select Subject</option>
+                                <option value="maths">Mathematics</option>
+                                <option value="dbms">Database Management Systems</option>
+                                <option value="os">Operating Systems</option>
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add JavaScript to handle dynamic form fields -->
+<script>
+function toggleRoleFields() {
+    const role = document.getElementById('role').value;
+    const subjectField = document.getElementById('subjectField');
+    
+    // Reset display
+    subjectField.style.display = 'block';
+    
+    // Reset required attributes
+    document.getElementById('subject').required = true;
+    
+    // Hide subject field for exam cell
+    if (role === 'exam_cell') {
+        subjectField.style.display = 'none';
+        document.getElementById('subject').required = false;
+    }
+}
+
+// Call the function on page load to set initial state
+document.addEventListener('DOMContentLoaded', toggleRoleFields);
+</script>
+{% endblock %}
