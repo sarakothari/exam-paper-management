@@ -13,12 +13,19 @@ class VercelPathFix(object):
 
     def __call__(self, environ, start_response):
         path = environ.get('PATH_INFO', '')
-        orig = environ.get('HTTP_X_FORWARDED_URI') or environ.get('HTTP_X_MATCHED_PATH')
-        if orig and not orig.startswith('/api/index'):
-            environ['PATH_INFO'] = orig.split('?')[0]
-        elif path.startswith('/api/index'):
-            remainder = path[len('/api/index'):]
-            environ['PATH_INFO'] = remainder if (remainder and remainder != '') else '/'
+
+        # 1. If path starts with /api/index, strip the prefix to get real route
+        if path.startswith('/api/index'):
+            sub = path[len('/api/index'):]
+            path = sub if (sub and sub.startswith('/')) else ('/' + sub if sub else '/')
+
+        # 2. Check if Vercel passed original route in headers/raw uri
+        if path in ('', '/'):
+            raw = environ.get('REQUEST_URI') or environ.get('RAW_URI') or environ.get('HTTP_X_FORWARDED_URI')
+            if raw and not raw.startswith('/api'):
+                path = raw.split('?')[0]
+
+        environ['PATH_INFO'] = path if path else '/'
         return self.wsgi_app(environ, start_response)
 
 app.wsgi_app = VercelPathFix(app.wsgi_app)
