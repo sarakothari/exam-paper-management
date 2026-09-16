@@ -45,6 +45,16 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# Auto-create database tables on first request safely
+@app.before_request
+def init_db_tables():
+    if not getattr(app, '_db_initialized', False):
+        try:
+            db.create_all()
+            app._db_initialized = True
+        except Exception as e:
+            print(f"DB init warning: {e}")
+
 
 # ---------------------------------------------------------------------------
 # Storage Abstraction — Vercel Blob vs Local Filesystem
